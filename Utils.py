@@ -11,7 +11,7 @@ board_width = app_height
 board_height = app_height
 
 # Amount of rows and columns of tiles
-tiles_per_row = 31
+tiles_per_row = 100
 
 # Amount of tiles on the board (must be a square number)
 tile_num = tiles_per_row ** 2

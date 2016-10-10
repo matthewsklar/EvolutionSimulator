@@ -1,6 +1,8 @@
 from tkinter import Tk, Canvas, Frame, BOTH
 import Board
 import Utils
+import random
+import Test
 
 
 class App(Frame):
@@ -36,9 +38,16 @@ class App(Frame):
 
     @staticmethod
     def create_tiles(canvas):
+        hi = random.random()
+        by = random.random()
+
         for x in range(0, Utils.tiles_per_row):
             for y in range(0, Utils.tiles_per_row):
-                tile = Board.Tile(x * Utils.tile_width, y * Utils.tile_width, 0, 0, 255)
+                tile = Board.Tile(x * Utils.tile_width,
+                                  y * Utils.tile_width,
+                                  0,
+                                  int(Test.perlin(x / Utils.tiles_per_row, y / Utils.tiles_per_row, hi) * 255),
+                                  int(Test.perlin(x / Utils.tiles_per_row, y / Utils.tiles_per_row, by) * 255))
                 tile.draw(canvas)
 
 

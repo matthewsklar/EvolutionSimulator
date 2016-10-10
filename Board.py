@@ -7,7 +7,7 @@ class Tile(object):
         self.y0 = y
         self.x1 = x + Utils.tile_width
         self.y1 = y + Utils.tile_width
-
+        print(r, g, b)
         # Default temperature and red value
         self.temp = clamp_rgb(r)
 
