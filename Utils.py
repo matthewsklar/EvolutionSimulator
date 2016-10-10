@@ -18,3 +18,7 @@ tile_num = tiles_per_row ** 2
 
 # Width and height of a tile
 tile_width = board_width / tiles_per_row
+
+
+def rgb_to_hex(r, g, b):
+    return "#%02x%02x%02x" % (r, g, b)

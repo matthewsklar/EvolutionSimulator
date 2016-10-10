@@ -6,18 +6,22 @@ import Test
 
 
 class App(Frame):
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, width, height, creature):
         # Create the frame
         Frame.__init__(self, parent)
 
         self.parent = parent
-
+        self.creature = creature
         self.width = width
         self.height = height
 
         self.center_window()
 
+        self.canvas = Canvas(self)
+
         self.init_ui()
+
+        self.update_app()
 
     def center_window(self):
         screen_width = self.parent.winfo_screenwidth()
@@ -32,9 +36,12 @@ class App(Frame):
         self.parent.title("Evolution Simulator")
         self.pack(fill=BOTH, expand=1)
 
-        canvas = Canvas(self)
-        self.create_tiles(canvas)
-        canvas.pack(fill=BOTH, expand=1)
+        self.create_tiles(self.canvas)
+        self.canvas.pack(fill=BOTH, expand=1)
+
+    def update_app(self):
+        self.creature.update(self.canvas)
+        self.after(100, self.update_app)
 
     @staticmethod
     def create_tiles(canvas):
@@ -51,10 +58,7 @@ class App(Frame):
                 tile.draw(canvas)
 
 
-def run():
+def init(creature):
     root = Tk()
-    App(root, Utils.app_width, Utils.app_height)
+    App(root, Utils.app_width, Utils.app_height, creature)
     root.mainloop()
-
-if __name__ == "__main__":
-    run()

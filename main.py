@@ -1,5 +1,6 @@
 import GUI
-import Test
+import Creature
 
 if __name__ == "__main__":
-    GUI.run()
+    creature = Creature.Creature()
+    GUI.init(creature)

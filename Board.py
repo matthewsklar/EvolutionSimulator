@@ -18,9 +18,9 @@ class Tile(object):
         self.water = clamp_rgb(b)
 
     def draw(self, canvas):
-        rgb_hex = "#%02x%02x%02x" % (self.temp, self.food, self.water)
+        rgb_hex = Utils.rgb_to_hex(self.temp, self.food, self.water)
 
-        return canvas.create_rectangle(self.x0, self.y0, self.x1, self.y1, outline="black", fill=rgb_hex, width=2)
+        return canvas.create_rectangle(self.x0, self.y0, self.x1, self.y1, outline=rgb_hex, fill=rgb_hex)
 
 
 def clamp_rgb(x):
