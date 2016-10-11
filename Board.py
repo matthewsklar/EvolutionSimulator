@@ -20,7 +20,7 @@ class Tile(object):
     def draw(self, canvas):
         rgb_hex = Utils.rgb_to_hex(self.temp, self.food, self.water)
 
-        return canvas.create_rectangle(self.x0, self.y0, self.x1, self.y1, outline=rgb_hex, fill=rgb_hex)
+        canvas.create_rectangle(self.x0, self.y0, self.x1, self.y1, outline=rgb_hex, fill=rgb_hex)
 
 
 def clamp_rgb(x):
