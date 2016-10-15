@@ -28,8 +28,6 @@ class Neuron(object):
         self.delta = 0
         self.output = 0
 
-        self.create_weights()
-
     def create_weights(self):
         """
         Creates the weights by adding a random number between -1 and 1 for each weight
@@ -39,6 +37,9 @@ class Neuron(object):
         """
         for x in range(0, self.inputs):
             self.weights.append(random.random() * 2 - 1)
+
+    def set_weight(self, weights):
+        self.weights = weights
 
 
 class NeuronLayer(object):
@@ -109,6 +110,9 @@ class NeuralNetwork(object):
         """
         Creates the neural network
 
+        Args:
+            args: A list of weights if the they are not to be randomly generated
+
         Raises:
             TypeError: self.num_inputs, self.num_hidden_layers, self.num_neurons_per_hidden_layer, self.num_outputs
             cannot all be interpreted as an integer
@@ -117,10 +121,37 @@ class NeuralNetwork(object):
 
         for i in range(0, self.num_hidden_layers):
             self.layers.append(NeuronLayer(self.num_neurons_per_hidden_layer,
-                                           self.layers[i - 1].num_neurons - 1))  # Create the hidden layers
+                                           self.layers[i - 1].num_neurons))  # Create the hidden layers
 
         self.layers.append(
             NeuronLayer(self.num_outputs, self.num_neurons_per_hidden_layer))  # Create the output layer
+
+    def create_weights(self, *args):
+        is_random = len(args) == 0
+        neurons_counted = 0
+        for i, layer in enumerate(self.layers):  # For each layer in the neural network
+            for j, neuron in enumerate(layer.neurons):  # For each neuron in the layer
+                if is_random:
+                    neuron.create_weights()
+                else:
+                    neuron.set_weight(args[0][neurons_counted])
+                    neurons_counted += 1
+
+    def get_weights(self):
+        """
+        Get all the weights in the neural network
+
+        Return:
+            A list of all the weights in the neural network
+        """
+
+        weight = []
+        for i, layer in enumerate(self.layers):  # For each layer in the neural network
+            for j, neuron in enumerate(layer.neurons):  # For each neuron in the layer
+                #print("(%d, %d): %s" % (i, j, str(neuron.weights)))
+                weight.append(neuron.weights)
+
+        return weight
 
     def calculate_network(self, inputs):
         """
@@ -185,5 +216,8 @@ def sigmoid(t):
               1
     S(t) = -------
             1+e^t
+
+    Args:
+        t: An int for the t in S(t)
     """
     return 1 / (1 + math.e ** -t)

@@ -1,40 +1,49 @@
-import NeuralNetwork
-import random
-import Utils
 import math
+import random
+
+import NeuralNetwork
+import Utils
 
 
 class Creature(object):
-    def __init__(self, canvas, tag):
+    """
+    The creature object
+
+    Arguments:
+        tag: A string for the tag used for Tkinter identification and grouping
+        x: An integer for the x position between 0 and Utils.board_width
+        y: An integer for the y position between 0 and Utils.board_width
+        r: An integer for the red value between 0 and 255
+        g: An integer for the green value between 0 and 255
+        b: An integer for the blue value between 0 and 255
+        direction_facing: An integer for the direction the creature is facing in degrees between 0 and 360
+        speed: A float for the percentage of the maximum speed between 0 and 1
+        reproduction: A boolean for the reproduction value where 0 means do not reproduce and 1 means reproduce
+        radius: An integer for the radius
+        speed_coefficient: An integer for the maximum speed
+        canvas: A Canvas object for the application's canvas
+    """
+
+    def __init__(self, canvas, tag, *args):
+        """
+        Initializes the Creature
+
+        Args:
+            canvas: A Canvas object for the application's canvas
+            tag: A string for the tag used for Tkinter identification and grouping
+            args: A list of weights if the Creature has a parent
+        """
         self.tag = "%s%d" % ("creature-", tag)
-
-        # x position (0 - Utils.board_width)
         self.x = int(random.random() * Utils.board_width)
-
-        # y position (0 - Utils.board_height)
         self.y = int(random.random() * Utils.board_height)
-
-        # Red value (0 - 255)
         self.r = int(random.random() * 255)
-
-        # Green value (0 - 255)
         self.g = int(random.random() * 255)
-
-        # Blue value (0 - 255)
         self.b = int(random.random() * 255)
-
-        # Direction facing in degrees (0 - 360)
         self.direction_facing = int(random.random() * 360)
-
-        # Percent of the maximum speed (0 - 1)
         self.speed = random.random()
-
-        # Radius of the creature
+        self.reproduction = round(random.random())
         self.radius = 10
-
-        # Maximum speed
-        self.speed_constant = 10
-
+        self.speed_coefficient = 10
         self.canvas = canvas
 
         rgb_hex = Utils.rgb_to_hex(self.r, self.g, self.b)
@@ -48,18 +57,20 @@ class Creature(object):
                                             center_y + math.sin(self.direction_facing) * self.radius,
                                             tags=self.tag)
 
-        """
-        Inputs:
-        Outputs: Red, Green, Blue, Direction Facing, Direction Moving, Speed, Diameter
-        """
-        self.network = NeuralNetwork.NeuralNetwork(3, 7, 1, 6)
+        # Inputs: 0: Red, 1: Green, 2: Blue
+        # Outputs: 0: Red, 1: Green, 2: Blue, 3: Direction Facing, 4: Speed, 5: Reproduction (maybe change to action for eat, drink, reproduce, fight, sleep (etc))
+        self.network = NeuralNetwork.NeuralNetwork(3, 6, 1, 6)
         self.network.create_network()
+        if len(args) == 0:
+            self.network.create_weights()
+        else:
+            self.network.create_weights(args[0])
 
     def update(self):
         inputs = [self.r, self.g, self.b]
         outputs = self.network.calculate_network(inputs)
 
-        print(outputs)
+        #print("%s:%s" % (self.tag, str(outputs)))
 
         # TODO: Have output between 0 and 255 instead of scaling here (can do with sigmoid * 255)
         self.r = int(outputs[0] * 255)
@@ -69,12 +80,19 @@ class Creature(object):
         # TODO: Have output between 0 and 360 instead of scaling here (can do with sigmoid * 360)
         self.direction_facing = int(outputs[3] * 360)
         self.speed = outputs[4]
+        self.reproduction = round(outputs[5])
+        self.reproduce()
+
         self.move()
         self.draw()
 
+    def reproduce(self):
+        if self.reproduction:
+            Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights()))
+
     def move(self):
-        self.x += math.cos(self.direction_facing) * self.speed_constant * self.speed
-        self.y += math.sin(self.direction_facing) * self.speed_constant * self.speed
+        self.x += math.cos(self.direction_facing) * self.speed_coefficient * self.speed
+        self.y += math.sin(self.direction_facing) * self.speed_coefficient * self.speed
 
     def draw(self):
         rgb_hex = Utils.rgb_to_hex(self.r, self.g, self.b)
