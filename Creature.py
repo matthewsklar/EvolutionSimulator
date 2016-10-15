@@ -16,6 +16,7 @@ class Creature(object):
         r: An integer for the red value between 0 and 255
         g: An integer for the green value between 0 and 255
         b: An integer for the blue value between 0 and 255
+        food: An integer representing the amount of food the creature has stored
         direction_facing: An integer for the direction the creature is facing in degrees between 0 and 360
         speed: A float for the percentage of the maximum speed between 0 and 1
         reproduction: A boolean for the reproduction value where 0 means do not reproduce and 1 means reproduce
@@ -39,6 +40,7 @@ class Creature(object):
         self.r = int(random.random() * 255)
         self.g = int(random.random() * 255)
         self.b = int(random.random() * 255)
+        self.food = 10
         self.direction_facing = int(random.random() * 360)
         self.speed = random.random()
         self.reproduction = round(random.random())
@@ -86,9 +88,19 @@ class Creature(object):
         self.move()
         self.draw()
 
+        self.die()
+
     def reproduce(self):
         if self.reproduction:
-            Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights()))
+            self.food -= 20
+            if self.food >= 0:
+                Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights()))
+
+    def die(self):
+        if self.food <= 0:
+            Utils.creatures.remove(self)
+            self.canvas.delete(self.tag)
+            del self
 
     def move(self):
         self.x += math.cos(self.direction_facing) * self.speed_coefficient * self.speed
