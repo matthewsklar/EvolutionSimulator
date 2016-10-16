@@ -19,7 +19,7 @@ class Creature(object):
         food: An integer representing the amount of food the creature has stored
         direction_facing: An integer for the direction the creature is facing in degrees between 0 and 360
         speed: A float for the percentage of the maximum speed between 0 and 1
-        reproduction: A boolean for the reproduction value where 0 means do not reproduce and 1 means reproduce
+        action: A float for the current action
         radius: An integer for the radius
         speed_coefficient: An integer for the maximum speed
         canvas: A Canvas object for the application's canvas
@@ -40,10 +40,10 @@ class Creature(object):
         self.r = int(random.random() * 255)
         self.g = int(random.random() * 255)
         self.b = int(random.random() * 255)
-        self.food = 10
+        self.food = 100
         self.direction_facing = int(random.random() * 360)
         self.speed = random.random()
-        self.reproduction = round(random.random())
+        self.action = round(random.random())
         self.radius = 10
         self.speed_coefficient = 10
         self.canvas = canvas
@@ -60,7 +60,8 @@ class Creature(object):
                                             tags=self.tag)
 
         # Inputs: 0: Red, 1: Green, 2: Blue
-        # Outputs: 0: Red, 1: Green, 2: Blue, 3: Direction Facing, 4: Speed, 5: Reproduction (maybe change to action for eat, drink, reproduce, fight, sleep (etc))
+        # Outputs: 0: Red, 1: Green, 2: Blue, 3: Direction Facing, 4: Speed,
+        # 5: Action (eat, drink, reproduce, fight, sleep)
         self.network = NeuralNetwork.NeuralNetwork(3, 6, 1, 6)
         self.network.create_network()
         if len(args) == 0:
@@ -68,11 +69,13 @@ class Creature(object):
         else:
             self.network.create_weights(args[0])
 
+        print("Birth: %s" % self.tag)
+
     def update(self):
         inputs = [self.r, self.g, self.b]
         outputs = self.network.calculate_network(inputs)
 
-        #print("%s:%s" % (self.tag, str(outputs)))
+        # print("%s:%s" % (self.tag, str(outputs)))
 
         # TODO: Have output between 0 and 255 instead of scaling here (can do with sigmoid * 255)
         self.r = int(outputs[0] * 255)
@@ -82,22 +85,57 @@ class Creature(object):
         # TODO: Have output between 0 and 360 instead of scaling here (can do with sigmoid * 360)
         self.direction_facing = int(outputs[3] * 360)
         self.speed = outputs[4]
-        self.reproduction = round(outputs[5])
-        self.reproduce()
+        self.action = math.floor(6 * outputs[5])
 
+        self.do_action()
         self.move()
+
         self.draw()
 
         self.die()
 
+    def do_action(self):
+        """
+        Do the current action based on what the action output neuron's value is
+        1 -> Eat
+        2 -> Drink
+        3 -> Reproduce
+        4 -> Fight
+        5 -> Sleep
+        6 -> Nothing
+        """
+        if self.action == 0:
+            self.eat()
+        elif self.action == 1:
+            self.drink()
+        elif self.action == 2:
+            self.reproduce()
+        elif self.action == 3:
+            self.fight()
+        elif self.action == 4:
+            self.sleep()
+
+    def eat(self):
+        pass
+
+    def drink(self):
+        pass
+
     def reproduce(self):
-        if self.reproduction:
-            self.food -= 20
-            if self.food >= 0:
-                Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights()))
+        self.food -= 100
+        if self.food >= 0:
+            Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights()))
+
+    def fight(self):
+        pass
+
+    def sleep(self):
+        pass
 
     def die(self):
         if self.food <= 0:
+            print("Death: %s" % self.tag)
+
             Utils.creatures.remove(self)
             self.canvas.delete(self.tag)
             del self
@@ -105,6 +143,8 @@ class Creature(object):
     def move(self):
         self.x += math.cos(self.direction_facing) * self.speed_coefficient * self.speed
         self.y += math.sin(self.direction_facing) * self.speed_coefficient * self.speed
+
+        self.food -= self.speed_coefficient
 
     def draw(self):
         rgb_hex = Utils.rgb_to_hex(self.r, self.g, self.b)

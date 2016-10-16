@@ -110,9 +110,6 @@ class NeuralNetwork(object):
         """
         Creates the neural network
 
-        Args:
-            args: A list of weights if the they are not to be randomly generated
-
         Raises:
             TypeError: self.num_inputs, self.num_hidden_layers, self.num_neurons_per_hidden_layer, self.num_outputs
             cannot all be interpreted as an integer
@@ -148,7 +145,7 @@ class NeuralNetwork(object):
         weight = []
         for i, layer in enumerate(self.layers):  # For each layer in the neural network
             for j, neuron in enumerate(layer.neurons):  # For each neuron in the layer
-                #print("(%d, %d): %s" % (i, j, str(neuron.weights)))
+                # print("(%d, %d): %s" % (i, j, str(neuron.weights)))
                 weight.append(neuron.weights)
 
         return weight
