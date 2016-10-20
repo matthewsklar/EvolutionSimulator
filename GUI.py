@@ -16,7 +16,6 @@ class App(Frame):
         width: An integer for the width of the application
         height: An integer for the height of the application
         canvas: A Canvas object for the application's canvas
-        init_creatures: A list of Creatures created when the application begins
     """
 
     def __init__(self, parent, width, height):
@@ -27,6 +26,7 @@ class App(Frame):
             parent: An object for the parent of the application
             width: An integer for the width of the application
             height: An integer for the height of the application
+            tile_update: A list of Tile objects that have been updates since the last update
         """
         Frame.__init__(self, parent)  # Create the frame
 
@@ -40,12 +40,33 @@ class App(Frame):
         self.pack(fill=BOTH, expand=1)
 
         self.canvas = Canvas(self)
-        create_tiles(self.canvas)
+        self.create_tiles()
         Utils.creatures = Creature.create_creatures(Utils.init_creature_num, self.canvas)
 
         self.canvas.pack(fill=BOTH, expand=1)
 
         self.update_app()
+
+    def create_tiles(self):
+        """
+        Creates the world tiles
+
+        Raises:
+            TypeError: Utils.tiles_per_row cannot be interpreted as an integer
+        """
+        r1 = random.random()
+        r2 = random.random()
+
+        for x in range(0, Utils.tiles_per_row):
+            for y in range(0, Utils.tiles_per_row):
+                tile = Board.Tile(x * Utils.tile_width,
+                                  y * Utils.tile_width,
+                                  0,
+                                  int(Test.perlin(x / Utils.tiles_per_row, y / Utils.tiles_per_row, r1) * 255),
+                                  int(Test.perlin(x / Utils.tiles_per_row, y / Utils.tiles_per_row, r2) * 255),
+                                  self.canvas)
+                Utils.tiles.append(tile)
+                tile.draw()
 
     def update_app(self):
         """
@@ -59,6 +80,10 @@ class App(Frame):
             i.update()
 
         self.after(100, self.update_app)
+
+        for tile in Utils.tile_update:
+            tile.draw()
+            Utils.tile_update.remove(tile)
 
 
 def center_window(app):
@@ -78,30 +103,6 @@ def center_window(app):
     y = (screen_height - app.height) / 2
 
     app.parent.geometry("%dx%d+%d+%d" % (app.width, app.height, x, y))
-
-
-def create_tiles(canvas):
-    """
-    Creates the world tiles
-
-    Args:
-        canvas: A Canvas object for the application's canvas
-
-    Raises:
-        TypeError: Utils.tiles_per_row cannot be interpreted as an integer
-    """
-    r1 = random.random()
-    r2 = random.random()
-
-    for x in range(0, Utils.tiles_per_row):
-        for y in range(0, Utils.tiles_per_row):
-            tile = Board.Tile(x * Utils.tile_width,
-                              y * Utils.tile_width,
-                              0,
-                              int(Test.perlin(x / Utils.tiles_per_row, y / Utils.tiles_per_row, r1) * 255),
-                              int(Test.perlin(x / Utils.tiles_per_row, y / Utils.tiles_per_row, r2) * 255))
-            tile.draw(canvas)
-
 
 def init():
     """

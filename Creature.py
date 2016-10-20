@@ -23,6 +23,7 @@ class Creature(object):
         radius: An integer for the radius
         speed_coefficient: An integer for the maximum speed
         canvas: A Canvas object for the application's canvas
+        tile: A Tile object for the occupied Tile
     """
 
     def __init__(self, canvas, tag, *args):
@@ -47,6 +48,7 @@ class Creature(object):
         self.radius = 10
         self.speed_coefficient = 10
         self.canvas = canvas
+        self.tile = Utils.get_tile(self.x, self.y)
 
         rgb_hex = Utils.rgb_to_hex(self.r, self.g, self.b)
         center_x = self.x + self.radius
@@ -75,14 +77,14 @@ class Creature(object):
         inputs = [self.r, self.g, self.b]
         outputs = self.network.calculate_network(inputs)
 
+        self.tile = Utils.get_tile(self.x, self.y)
+
         # print("%s:%s" % (self.tag, str(outputs)))
 
-        # TODO: Have output between 0 and 255 instead of scaling here (can do with sigmoid * 255)
         self.r = int(outputs[0] * 255)
         self.g = int(outputs[1] * 255)
         self.b = int(outputs[2] * 255)
 
-        # TODO: Have output between 0 and 360 instead of scaling here (can do with sigmoid * 360)
         self.direction_facing = int(outputs[3] * 360)
         self.speed = outputs[4]
         self.action = math.floor(6 * outputs[5])
@@ -116,7 +118,12 @@ class Creature(object):
             self.sleep()
 
     def eat(self):
-        pass
+        food_eaten = max(self.tile.food, 5)
+
+        self.food += food_eaten
+        self.tile.set_food(self.tile.food - food_eaten)
+
+        print("%s has eaten %d" % (self.tag, food_eaten))
 
     def drink(self):
         pass
