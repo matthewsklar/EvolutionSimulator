@@ -145,7 +145,7 @@ class Creature(object):
         if self.food >= 0 and self.water >= 0:
             Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights()))
 
-        update_resources()
+        #update_resources()
 
     def fight(self):
         pass

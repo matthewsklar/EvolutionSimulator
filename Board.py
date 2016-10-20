@@ -25,7 +25,6 @@ class Tile(object):
 
     def set_food(self, food):
         self.food = food
-        print(self.food)
         Utils.tile_update.append(self)
 
     def set_water(self, water):

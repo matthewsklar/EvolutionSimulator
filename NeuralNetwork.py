@@ -1,6 +1,6 @@
-# Imports
 import random
 import math
+import Utils
 
 
 class Neuron(object):
@@ -39,6 +39,9 @@ class Neuron(object):
             self.weights.append(random.random() * 2 - 1)
 
     def set_weight(self, weights):
+        test = weights
+        weights = list(map(lambda x: x if random.random() > Utils.mutation_rate else random.random(), weights))
+
         self.weights = weights
 
 

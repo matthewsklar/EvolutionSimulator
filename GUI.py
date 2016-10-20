@@ -76,14 +76,16 @@ class App(Frame):
             TypeError: self.init_creatures is not iterable
             AttributeError: self.update_app is not a function
         """
+        for tile in Utils.tile_update:
+            tile.draw()
+            Utils.tile_update.remove(tile)
+
         for i in Utils.creatures:
             i.update()
 
         self.after(100, self.update_app)
 
-        for tile in Utils.tile_update:
-            tile.draw()
-            Utils.tile_update.remove(tile)
+        print("%d Creatures alive" % len(Utils.creatures))
 
 
 def center_window(app):

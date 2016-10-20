@@ -23,8 +23,11 @@ tiles = []  # List of tiles
 
 tile_update = []  # A list of Creatures created when the application begins
 
-birth_food = 30
-birth_water = 30
+birth_food = 30  # A number representing the amount of food a Creature is born with
+
+birth_water = 30  # A number representing the amount of water a Creature is born with
+
+mutation_rate = .1  # A float representing the chance of a mutation on a given weight at birth
 
 
 def rgb_to_hex(r, g, b):
