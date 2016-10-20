@@ -1,5 +1,4 @@
 import Utils
-import GUI
 
 
 class Tile(object):
@@ -26,11 +25,12 @@ class Tile(object):
 
     def set_food(self, food):
         self.food = food
+        print(self.food)
         Utils.tile_update.append(self)
 
     def set_water(self, water):
         self.water = water
-        Utils.tile_update.append(water)
+        Utils.tile_update.append(self)
 
     def draw(self):
         rgb_hex = Utils.rgb_to_hex(self.temp, self.food, self.water)

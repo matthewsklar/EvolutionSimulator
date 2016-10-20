@@ -57,8 +57,8 @@ class App(Frame):
         r1 = random.random()
         r2 = random.random()
 
-        for x in range(0, Utils.tiles_per_row):
-            for y in range(0, Utils.tiles_per_row):
+        for y in range(0, Utils.tiles_per_row):
+            for x in range(0, Utils.tiles_per_row):
                 tile = Board.Tile(x * Utils.tile_width,
                                   y * Utils.tile_width,
                                   0,

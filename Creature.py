@@ -17,6 +17,7 @@ class Creature(object):
         g: An integer for the green value between 0 and 255
         b: An integer for the blue value between 0 and 255
         food: An integer representing the amount of food the creature has stored
+        water: An integer representing the amount of water the creature has stored
         direction_facing: An integer for the direction the creature is facing in degrees between 0 and 360
         speed: A float for the percentage of the maximum speed between 0 and 1
         action: A float for the current action
@@ -41,7 +42,8 @@ class Creature(object):
         self.r = int(random.random() * 255)
         self.g = int(random.random() * 255)
         self.b = int(random.random() * 255)
-        self.food = 100
+        self.food = Utils.birth_food
+        self.water = Utils.birth_water
         self.direction_facing = int(random.random() * 360)
         self.speed = random.random()
         self.action = round(random.random())
@@ -118,20 +120,32 @@ class Creature(object):
             self.sleep()
 
     def eat(self):
-        food_eaten = max(self.tile.food, 5)
+        food_eaten = min(self.tile.food, 30)
 
         self.food += food_eaten
         self.tile.set_food(self.tile.food - food_eaten)
 
-        print("%s has eaten %d" % (self.tag, food_eaten))
+        print("%s has eaten %d: food = %d" % (self.tag, food_eaten, self.food))
 
     def drink(self):
-        pass
+        water_drunk = min(self.tile.water, 30)
+
+        self.water += water_drunk
+        self.tile.set_water(self.tile.water - water_drunk)
+
+        print("%s has drunk %d: water = %d" % (self.tag, water_drunk, self.water))
 
     def reproduce(self):
-        self.food -= 100
-        if self.food >= 0:
+        def update_resources():
+            self.food -= Utils.birth_food / 2
+            self.water -= Utils.birth_water / 2
+
+        update_resources()
+
+        if self.food >= 0 and self.water >= 0:
             Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights()))
+
+        update_resources()
 
     def fight(self):
         pass
@@ -140,18 +154,22 @@ class Creature(object):
         pass
 
     def die(self):
-        if self.food <= 0:
-            print("Death: %s" % self.tag)
+        if self.food <= 0 or self.water <= 0:
+            print("Death: %s with food = %d and water = %d" % (self.tag, self.food, self.water))
 
             Utils.creatures.remove(self)
             self.canvas.delete(self.tag)
             del self
 
     def move(self):
-        self.x += math.cos(self.direction_facing) * self.speed_coefficient * self.speed
-        self.y += math.sin(self.direction_facing) * self.speed_coefficient * self.speed
+        self.x += Utils.clamp(math.cos(self.direction_facing) * self.speed_coefficient * self.speed, 0,
+                              Utils.board_width)
+        self.y += Utils.clamp(math.sin(self.direction_facing) * self.speed_coefficient * self.speed, 0,
+                              Utils.board_height)
 
-        self.food -= self.speed_coefficient
+        # TODO: Improve resource consumption algorithm
+        self.food -= self.speed_coefficient / 2
+        self.water -= self.speed_coefficient / 2
 
     def draw(self):
         rgb_hex = Utils.rgb_to_hex(self.r, self.g, self.b)
