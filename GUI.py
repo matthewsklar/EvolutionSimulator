@@ -83,10 +83,9 @@ class App(Frame):
         for i in Utils.creatures:
             i.update()
 
-        self.after(100, self.update_app)
-
         print("%d Creatures alive" % len(Utils.creatures))
 
+        self.after(100, self.update_app)
 
 def center_window(app):
     """

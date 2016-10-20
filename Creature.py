@@ -116,8 +116,10 @@ class Creature(object):
             self.reproduce()
         elif self.action == 3:
             self.fight()
+            self.eat()
         elif self.action == 4:
             self.sleep()
+            self.drink()
 
     def eat(self):
         food_eaten = min(self.tile.food, 30)
@@ -136,16 +138,11 @@ class Creature(object):
         print("%s has drunk %d: water = %d" % (self.tag, water_drunk, self.water))
 
     def reproduce(self):
-        def update_resources():
-            self.food -= Utils.birth_food / 2
-            self.water -= Utils.birth_water / 2
+        if self.food >= Utils.birth_food + 50 and self.water >= Utils.birth_water + 50:
+            self.food -= Utils.birth_food
+            self.water -= Utils.birth_water
 
-        update_resources()
-
-        if self.food >= 0 and self.water >= 0:
             Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights()))
-
-        #update_resources()
 
     def fight(self):
         pass
@@ -168,8 +165,8 @@ class Creature(object):
                               Utils.board_height)
 
         # TODO: Improve resource consumption algorithm
-        self.food -= self.speed_coefficient / 2
-        self.water -= self.speed_coefficient / 2
+        self.food -= self.speed_coefficient / 4
+        self.water -= self.speed_coefficient / 4
 
     def draw(self):
         rgb_hex = Utils.rgb_to_hex(self.r, self.g, self.b)

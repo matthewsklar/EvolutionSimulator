@@ -19,6 +19,9 @@ class Tile(object):
 
         self.canvas = canvas
 
+        rgb_hex = Utils.rgb_to_hex(self.temp, self.food, self.water)
+        self.rectangle = self.canvas.create_rectangle(self.x0, self.y0, self.x1, self.y1, outline="black", fill=rgb_hex)
+
     def set_temp(self, temp):
         self.temp = temp
         Utils.tile_update.append(self)
@@ -34,7 +37,8 @@ class Tile(object):
     def draw(self):
         rgb_hex = Utils.rgb_to_hex(self.temp, self.food, self.water)
 
-        self.canvas.create_rectangle(self.x0, self.y0, self.x1, self.y1, outline="black", fill=rgb_hex)
+        self.canvas.itemconfig(self.rectangle, fill=rgb_hex)
+        self.canvas.coords(self.rectangle, self.x0, self.y0, self.x1, self.y1)
 
 
 def clamp_rgb(x):
