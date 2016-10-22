@@ -141,7 +141,8 @@ class Creature(object):
             self.water -= Utils.birth_water
 
             Utils.creatures.append(
-                Creature(self.canvas, len(Utils.creatures), self.network.get_weights(), self.x, self.y))
+                Creature(self.canvas, Utils.total_creature_num, self.network.get_weights(), self.x, self.y))
+            Utils.total_creature_num += 1
 
     def fight(self):
         pass

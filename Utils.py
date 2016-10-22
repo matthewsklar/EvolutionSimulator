@@ -17,6 +17,8 @@ tile_width = board_width / tiles_per_row  # Width and height of a tile
 
 init_creature_num = 100  # Amount of creatures created when application starts
 
+total_creature_num = init_creature_num  # An integer for the total amount of creatures that have been created
+
 creatures = []  # List of creatures currently alive
 
 tiles = []  # List of tiles
