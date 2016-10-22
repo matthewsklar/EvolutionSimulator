@@ -47,7 +47,7 @@ class Creature(object):
         self.direction_facing = int(random.random() * 360)
         self.speed = random.random()
         self.action = round(random.random())
-        self.radius = 10
+        self.radius = (self.food + self.water) / 30
         self.speed_coefficient = 10
         self.canvas = canvas
         self.tile = Utils.get_tile(self.x, self.y)
