@@ -100,13 +100,13 @@ class Creature(object):
 
     def do_action(self):
         """
-        Do the current action based on what the action output neuron's value is
-        1 -> Eat
-        2 -> Drink
-        3 -> Reproduce
-        4 -> Fight
-        5 -> Sleep
-        6 -> Nothing
+        Do the current action based on what the action output neuron's value is:
+            1 -> Eat
+            2 -> Drink
+            3 -> Reproduce
+            4 -> Fight
+            5 -> Sleep
+            6 -> Nothing
         """
         if self.action == 0:
             self.eat()
@@ -116,10 +116,8 @@ class Creature(object):
             self.reproduce()
         elif self.action == 3:
             self.fight()
-            self.eat()
         elif self.action == 4:
             self.sleep()
-            self.drink()
 
     def eat(self):
         food_eaten = min(self.tile.food, 30)
