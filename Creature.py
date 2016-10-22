@@ -63,10 +63,10 @@ class Creature(object):
                                             center_y + math.sin(self.direction_facing) * self.radius,
                                             tags=self.tag)
 
-        # Inputs: 0: Red, 1: Green, 2: Blue
+        # Inputs: 0: Red, 1: Green, 2: Blue, 3: Food, 4: Water
         # Outputs: 0: Red, 1: Green, 2: Blue, 3: Direction Facing, 4: Speed,
         # 5: Action (eat, drink, reproduce, fight, sleep)
-        self.network = NeuralNetwork.NeuralNetwork(3, 6, 1, 6)
+        self.network = NeuralNetwork.NeuralNetwork(5, 6, 1, 6)
         self.network.create_network()
         if len(args) == 0:
             self.network.create_weights()
@@ -76,7 +76,7 @@ class Creature(object):
         print("Birth: %s" % self.tag)
 
     def update(self):
-        inputs = [self.r, self.g, self.b]
+        inputs = [self.r, self.g, self.b, self.food, self.water]
         outputs = self.network.calculate_network(inputs)
 
         self.tile = Utils.get_tile(self.x, self.y)
@@ -138,7 +138,7 @@ class Creature(object):
         print("%s has drunk %d: water = %d" % (self.tag, water_drunk, self.water))
 
     def reproduce(self):
-        if self.food >= Utils.birth_food + 50 and self.water >= Utils.birth_water + 50:
+        if self.food >= Utils.birth_food and self.water >= Utils.birth_water:
             self.food -= Utils.birth_food
             self.water -= Utils.birth_water
 
@@ -159,10 +159,11 @@ class Creature(object):
             del self
 
     def move(self):
-        self.x += Utils.clamp(math.cos(self.direction_facing) * self.speed_coefficient * self.speed, 0,
-                              Utils.board_width)
-        self.y += Utils.clamp(math.sin(self.direction_facing) * self.speed_coefficient * self.speed, 0,
-                              Utils.board_height)
+        self.x += math.cos(self.direction_facing) * self.speed_coefficient * self.speed
+        self.y += math.sin(self.direction_facing) * self.speed_coefficient * self.speed
+
+        self.x %= Utils.board_width
+        self.y %= Utils.board_height
 
         # TODO: Improve resource consumption algorithm
         self.food -= self.speed_coefficient / 4

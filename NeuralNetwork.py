@@ -219,4 +219,7 @@ def sigmoid(t):
     Args:
         t: An int for the t in S(t)
     """
-    return 1 / (1 + math.e ** -t)
+    try:
+        return 1 / (1 + math.e ** -t)
+    except OverflowError:
+        return(1)
