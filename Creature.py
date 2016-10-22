@@ -37,8 +37,8 @@ class Creature(object):
             args: A list of weights if the Creature has a parent
         """
         self.tag = "%s%d" % ("creature-", tag)
-        self.x = int(random.random() * Utils.board_width)
-        self.y = int(random.random() * Utils.board_height)
+        self.x = int(random.random() * Utils.board_width) if len(args) == 0 else args[1]
+        self.y = int(random.random() * Utils.board_height) if len(args) == 0 else args[2]
         self.r = int(random.random() * 255)
         self.g = int(random.random() * 255)
         self.b = int(random.random() * 255)
@@ -142,7 +142,7 @@ class Creature(object):
             self.food -= Utils.birth_food
             self.water -= Utils.birth_water
 
-            Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights()))
+            Utils.creatures.append(Creature(self.canvas, len(Utils.creatures), self.network.get_weights(), self.x, self.y))
 
     def fight(self):
         pass
