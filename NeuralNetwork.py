@@ -145,8 +145,8 @@ class NeuralNetwork(object):
         """
         is_random = len(args) == 0
         neurons_counted = 0
-        for i, layer in enumerate(self.layers):  # For each layer in the neural network
-            for j, neuron in enumerate(layer.neurons):  # For each neuron in the layer
+        for layer in self.layers:  # For each layer in the neural network
+            for neuron in layer.neurons:  # For each neuron in the layer
                 if is_random:
                     neuron.create_weights()
                 else:
