@@ -222,4 +222,4 @@ def sigmoid(t):
     try:
         return 1 / (1 + math.e ** -t)
     except OverflowError:
-        return(1)
+        return 1

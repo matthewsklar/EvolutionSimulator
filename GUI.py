@@ -26,7 +26,6 @@ class App(Frame):
             parent: An object for the parent of the application
             width: An integer for the width of the application
             height: An integer for the height of the application
-            tile_update: A list of Tile objects that have been updates since the last update
         """
         Frame.__init__(self, parent)  # Create the frame
 
@@ -87,6 +86,7 @@ class App(Frame):
 
         self.after(100, self.update_app)
 
+
 def center_window(app):
     """
     Centers the window on the screen
@@ -104,6 +104,7 @@ def center_window(app):
     y = (screen_height - app.height) / 2
 
     app.parent.geometry("%dx%d+%d+%d" % (app.width, app.height, x, y))
+
 
 def init():
     """
