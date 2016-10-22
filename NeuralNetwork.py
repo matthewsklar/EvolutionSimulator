@@ -39,7 +39,17 @@ class Neuron(object):
             self.weights.append(random.random() * 2 - 1)
 
     def set_weight(self, weights):
-        weights = list(map(lambda x: x if random.random() > Utils.mutation_rate else random.random(), weights))
+        """
+        Creates weights using predetermined values. Based on the mutation rate,
+        there is a chance that mutations occur causing random rates to be replaced with random numbers between -1 and 1.
+
+        Args:
+            weights: A list representing the predetermined value for weights
+
+        Raises
+            TypeError: weights is not iterable
+        """
+        weights = list(map(lambda x: x if random.random() > Utils.mutation_rate else random.random() * 2 - 1, weights))
 
         self.weights = weights
 
@@ -126,6 +136,13 @@ class NeuralNetwork(object):
             NeuronLayer(self.num_outputs, self.num_neurons_per_hidden_layer))  # Create the output layer
 
     def create_weights(self, *args):
+        """
+        Create the weights of each neuron either randomly if their are no given weights from a parent,
+        or base them on the weights from a parent.
+
+        Args:
+            args: Either nothing or a list containing the list of weights from the parent
+        """
         is_random = len(args) == 0
         neurons_counted = 0
         for i, layer in enumerate(self.layers):  # For each layer in the neural network
@@ -218,8 +235,12 @@ def sigmoid(t):
 
     Args:
         t: An int for the t in S(t)
+
+    Returns:
+        A float representing the output from the sigmoid function with t as the input.
+        If math.e ** -t causes an overflow error, then the output is rounded to 0.
     """
     try:
         return 1 / (1 + math.e ** -t)
     except OverflowError:
-        return 1
+        return 0
