@@ -142,6 +142,9 @@ class NeuralNetwork(object):
 
         Args:
             args: Either nothing or a list containing the list of weights from the parent
+
+        Raises:
+            TypeError: args[0] is not subscriptable
         """
         is_random = len(args) == 0
         neurons_counted = 0
