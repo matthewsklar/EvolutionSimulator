@@ -25,6 +25,9 @@ class Creature(object):
         speed_coefficient: An integer for the maximum speed
         canvas: A Canvas object for the application's canvas
         tile: A Tile object for the occupied Tile
+        body: An oval for the body of the Creature
+        line: A line for the direction the Creature is facing
+        network: A NeuralNetwork object for the Neural Network used by the Creature
     """
 
     def __init__(self, canvas, tag, *args):
@@ -76,6 +79,12 @@ class Creature(object):
         print("Birth: %s" % self.tag)
 
     def update(self):
+        """
+        Update the Creature
+
+        Raises:
+            IndexError: List index out of range
+        """
         inputs = [self.r, self.g, self.b, self.food, self.water]
         outputs = self.network.calculate_network(inputs)
 
@@ -120,6 +129,9 @@ class Creature(object):
             self.sleep()
 
     def eat(self):
+        """
+        Eat food to add food to the Creature and remove food from the Tile
+        """
         food_eaten = min(self.tile.food, 30)
 
         self.food += food_eaten
@@ -128,6 +140,9 @@ class Creature(object):
         print("%s has eaten %d: food = %d" % (self.tag, food_eaten, self.food))
 
     def drink(self):
+        """
+        Drink food to add water to the Creature and remove water from the Tile
+        """
         water_drunk = min(self.tile.water, 30)
 
         self.water += water_drunk
