@@ -234,7 +234,7 @@ def sigmoid(t):
     The sigmoid transfer function
               1
     S(t) = -------
-            1+e^t
+            1+e^-t
 
     Args:
         t: An int for the t in S(t)

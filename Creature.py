@@ -4,6 +4,8 @@ import random
 import NeuralNetwork
 import Utils
 
+vision = Utils.tile_width * 2
+
 
 class Creature(object):
     """
@@ -25,8 +27,11 @@ class Creature(object):
         speed_coefficient: An integer for the maximum speed
         canvas: A Canvas object for the application's canvas
         tile: A Tile object for the occupied Tile
+        left_eye_rad: A float representing the angle in radians between the left eye and forward between 0 and pi/2
+        right_eye_rad: A float representing teh angle in radians between the right eye and forward between 0 and pi/2
         body: An oval for the body of the Creature
-        line: A line for the direction the Creature is facing
+        left_eye: A line for the Creature's left eye
+        right_eye: A line for the Creature's right eye
         network: A NeuralNetwork object for the Neural Network used by the Creature
     """
 
@@ -54,22 +59,21 @@ class Creature(object):
         self.speed_coefficient = 10
         self.canvas = canvas
         self.tile = Utils.get_tile(self.x, self.y)
+        self.left_eye_rad = eye_rad(random.random()) if len(args) == 0 else args[3]
+        self.right_eye_rad = eye_rad(random.random()) if len(args) == 0 else args[4]
 
         rgb_hex = Utils.rgb_to_hex(self.r, self.g, self.b)
         center_x = self.x + self.radius
         center_y = self.y + self.radius
+        left_eye_pos = self.get_eye_pos(self.left_eye_rad)
+        right_eye_pos = self.get_eye_pos(self.right_eye_rad)
 
         self.body = self.canvas.create_oval(self.x, self.y, self.x + self.radius * 2, self.y + self.radius * 2,
                                             fill=rgb_hex, tags=self.tag)
-        self.line = self.canvas.create_line(center_x, center_y,
-                                            center_x + math.cos(self.direction_facing) * self.radius,
-                                            center_y + math.sin(self.direction_facing) * self.radius,
-                                            tags=self.tag)
+        self.left_eye = self.canvas.create_line(center_x, center_y, left_eye_pos[0], left_eye_pos[1], tags=self.tag)
+        self.right_eye = self.canvas.create_line(center_x, center_y, right_eye_pos[0], right_eye_pos[1], tags=self.tag)
 
-        # Inputs: 0: Red, 1: Green, 2: Blue, 3: Food, 4: Water
-        # Outputs: 0: Red, 1: Green, 2: Blue, 3: Direction Facing, 4: Speed,
-        # 5: Action (eat, drink, reproduce, fight, sleep)
-        self.network = NeuralNetwork.NeuralNetwork(5, 6, 1, 6)
+        self.network = NeuralNetwork.NeuralNetwork(13, 8, 1, 11)
         self.network.create_network()
         if len(args) == 0:
             self.network.create_weights()
@@ -78,6 +82,26 @@ class Creature(object):
 
         print("Birth: %s" % self.tag)
 
+    def get_eye_pos(self, eye_rads):
+        """
+        Calculate the coordinates of the Creature's vision
+
+        Args:
+            eye_rads: A float representing the degree in radians between the eye and forward
+
+        Returns:
+            A tuple containing the the x and y coordinates
+
+        Raises:
+            TypeError: eye_rads is an unsupported operand type
+        """
+        center_x = self.x + self.radius
+        center_y = self.y + self.radius
+        x = center_x + math.cos(self.direction_facing - eye_rads) * (self.radius + vision)
+        y = center_y + math.sin(self.direction_facing - eye_rads) * (self.radius + vision)
+
+        return x, y
+
     def update(self):
         """
         Update the Creature
@@ -85,7 +109,19 @@ class Creature(object):
         Raises:
             IndexError: List index out of range
         """
-        inputs = [self.r, self.g, self.b, self.food, self.water]
+        left_eye = self.get_eye_pos(self.left_eye_rad)
+        right_eye = self.get_eye_pos(self.right_eye_rad)
+
+        left_tile = Utils.get_tile(left_eye[0], left_eye[1])
+        right_tile = Utils.get_tile(right_eye[0], right_eye[1])
+
+        # 0: Red, 1: Green, 2: Blue, 3: Food, 4: Water, 5: Left seen tile R, 6: Left seen tile G, 7: Left seen tile B,
+        # 8: Right seen tile R, 9: Right seen tile G, 10: Right seen tile B, 11: Left eye radian, 12: Right eye radian
+        inputs = [self.r, self.g, self.b, self.food, self.water, left_tile.temp, left_tile.food, left_tile.water,
+                  right_tile.temp, right_tile.food, right_tile.water, self.left_eye_rad, self.right_eye_rad]
+
+        # 0: Red, 1: Green, 2: Blue, 3: Direction Facing, 4: Speed, 5: Action (eat, drink, reproduce, fight, sleep),
+        # 6: Left eye radian, 7: Right eye radian
         outputs = self.network.calculate_network(inputs)
 
         self.tile = Utils.get_tile(self.x, self.y)
@@ -99,6 +135,9 @@ class Creature(object):
         self.direction_facing = int(outputs[3] * 360)
         self.speed = outputs[4]
         self.action = math.floor(6 * outputs[5])
+
+        self.left_eye_rad = eye_rad(outputs[6])
+        self.right_eye_rad = eye_rad(outputs[7])
 
         self.do_action()
         self.move()
@@ -141,7 +180,7 @@ class Creature(object):
 
     def drink(self):
         """
-        Drink food to add water to the Creature and remove water from the Tile
+        Drink water to add water to the Creature and remove water from the Tile
         """
         water_drunk = min(self.tile.water, 30)
 
@@ -151,12 +190,17 @@ class Creature(object):
         print("%s has drunk %d: water = %d" % (self.tag, water_drunk, self.water))
 
     def reproduce(self):
+        """
+        If the Creature is able to reproduce, have it reproduce by creating a Creature using some of its resources at
+        it's position with weights based off it's own
+        """
         if self.food >= Utils.birth_food and self.water >= Utils.birth_water:
             self.food -= Utils.birth_food
             self.water -= Utils.birth_water
 
             Utils.creatures.append(
-                Creature(self.canvas, Utils.total_creature_num, self.network.get_weights(), self.x, self.y))
+                Creature(self.canvas, Utils.total_creature_num, self.network.get_weights(), self.x, self.y,
+                         self.left_eye_rad, self.right_eye_rad))
             Utils.total_creature_num += 1
 
     def fight(self):
@@ -188,11 +232,18 @@ class Creature(object):
         rgb_hex = Utils.rgb_to_hex(self.r, self.g, self.b)
         center_x = self.x + self.radius
         center_y = self.y + self.radius
+        left_eye = self.get_eye_pos(self.left_eye_rad)
+        right_eye = self.get_eye_pos(self.right_eye_rad)
 
         self.canvas.itemconfig(self.body, fill=rgb_hex)
         self.canvas.coords(self.body, self.x, self.y, self.x + self.radius * 2, self.y + self.radius * 2)
-        self.canvas.coords(self.line, center_x, center_y, center_x + math.cos(self.direction_facing) * self.radius,
-                           center_y + math.sin(self.direction_facing) * self.radius)
+
+        self.canvas.coords(self.left_eye, center_x, center_y, left_eye[0], left_eye[1])
+        self.canvas.coords(self.right_eye, center_x, center_y, right_eye[0], right_eye[1])
+
+
+def eye_rad(x):
+    return x * (math.pi / 2)
 
 
 def create_creatures(num, canvas):
