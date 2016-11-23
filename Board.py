@@ -24,15 +24,27 @@ class Tile(object):
 
     def set_temp(self, temp):
         self.temp = temp
-        Utils.tile_update.append(self)
+        self.add_to_update()
 
     def set_food(self, food):
         self.food = food
-        Utils.tile_update.append(self)
+        self.add_to_update()
 
     def set_water(self, water):
         self.water = water
-        Utils.tile_update.append(self)
+        self.add_to_update()
+
+    def add_to_update(self):
+        if self not in Utils.tile_update:
+            Utils.tile_update.append(self)
+
+    def update(self):
+        # TODO: use calculus to only update when Creature interacts
+        if self.food < 255:
+            self.set_food(Utils.clamp(self.food + 1, 0, 255))
+
+        if self.water < 255:
+            self.set_water(Utils.clamp(self.water + 1, 0, 255))
 
     def draw(self):
         rgb_hex = Utils.rgb_to_hex(self.temp, self.food, self.water)
